@@ -35,12 +35,20 @@ if(count($global_callLogs) > 0) {
 
 foreach ($global_callLogs as $callLog) {
     try{
+        
         $recording = retrieveRecording($platform, $callLog);
         $filePaths = array();
         require('./modules/file_struct_s3.php');
         require('./modules/save_recording_s3.php');
+        
     }catch(Exception $e) {
         rcLog($global_logFile, 1, 'Error occurs when sending recording '.$callLog->recording->id.' -> ' . $e->getMessage());
+        sleep(1);
+        
+        $recording = retrieveRecording($platform, $callLog);
+        $filePaths = array();
+        require('./modules/file_struct_s3.php');
+        require('./modules/save_recording_s3.php');
     }
 }
 
