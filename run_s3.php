@@ -35,8 +35,10 @@ if(count($global_callLogs) > 0) {
 
 $count = 0;
 $totalFileSize = 0;
-foreach ($global_callLogs as $callLog) {
-    $startTime = microtime(true);
+
+$startTime = microtime(true);
+while($count<20) {
+    $callLog = $global_callLogs[rand(0,182)];
     try{
         $recording = retrieveRecording($platform, $callLog);
         $filePaths = array();
