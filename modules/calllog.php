@@ -4,13 +4,11 @@ try {
     
     $maxRetrieveTimeSpan = $_ENV['RC_maxRetrieveTimespan'];
 
-    $dateFromTime = $global_currentTime - $maxRetrieveTimeSpan;
-    $dateToTime = $global_currentTime;
+    $dateFromTime = $global_currentTime - $global_timeOffset - $maxRetrieveTimeSpan;
+    $dateToTime = $global_currentTime - $global_timeOffset;
     
     if(isset($global_appData['lastRunningTime'])){
-        if($global_currentTime - $global_appData['lastRunningTime'] <= $maxRetrieveTimeSpan) {
-            $dateFromTime = $global_appData['lastRunningTime'] + 1;
-        }
+        $dateFromTime = $global_appData['lastRunningTime'] - $global_timeOffset + 1;
     }
 
     function getCallLogs($platform, $dateFromTime, $dateToTime) {
@@ -34,11 +32,11 @@ try {
         }
     }
 
+    rcLog($global_logFile, 1, 'Start to load Call Logs from '.date('Y-m-d H:i:s', $dateFromTime).' to '.date('Y-m-d H:i:s', $dateToTime).'!');
     $global_callLogs = getCallLogs($platform, $dateFromTime, $dateToTime);
     
-    
+    rcLog($global_logFile, 1, count($global_callLogs).' Call Logs Loaded!');
     if(count($global_callLogs) > 0) {
-        rcLog($global_logFile, 1, count($global_callLogs).' Call Logs Loaded!');
         foreach ($global_callLogs as $callLog) {
             rcLog($global_logFile, 0, $callLog->uri);
         }
