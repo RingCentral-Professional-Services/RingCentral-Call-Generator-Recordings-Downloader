@@ -12,11 +12,15 @@ function saveCallLogToFile($callLogs, $filePath){
     fclose($fo); 
 }
 
-function getCallLogItems($callLogs, $accountExtensions, $phoneNumbers){
+function getCallLogItems($callLogs, $accountExtensions, $phoneNumbers, $logFile){
     $callLogItems = array();
     foreach ($callLogs as $callLog) {
         $filePath = '';
-        require('./modules/file_struct_s3.php');
+        try {
+            require('./modules/file_struct_s3.php');
+        }catch(Exception $e) {
+            rcLog($logFile, 2, 'Error occurs when saving call log '.$callLog->id.' as file: '.$e->getMessage());
+        }
         array_push($callLogItems, array(
             'recordingId' => $callLog->recording->id,
             'filePath' => $filePath,
@@ -36,14 +40,14 @@ try{
         while($count < $totalFileCount - 1){
             $slice = array_slice($global_callLogs, $count * $callLogInEachFile, $callLogInEachFile);
             $filePath = $global_cacheDir.'/'.$filePrefix.'_'.$count.'.json';
-            saveCallLogToFile(getCallLogItems($slice, $global_accountExtensions, $global_phoneNumbers), $filePath);
+            saveCallLogToFile(getCallLogItems($slice, $global_accountExtensions, $global_phoneNumbers, $global_logFile), $filePath);
             $count++;
         }
         
         $count = $totalFileCount - 1;
         $slice = array_slice($global_callLogs, $count * $callLogInEachFile);
         $filePath = $global_cacheDir.'/'.$filePrefix.'_'.$count.'.json';
-        saveCallLogToFile(getCallLogItems($slice, $global_accountExtensions, $global_phoneNumbers), $filePath);
+        saveCallLogToFile(getCallLogItems($slice, $global_accountExtensions, $global_phoneNumbers, $global_logFile), $filePath);
     }
     
 }catch(Exception $e) {

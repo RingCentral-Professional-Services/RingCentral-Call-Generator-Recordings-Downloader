@@ -1,5 +1,5 @@
 <?php
-
+ini_set('memory_limit', '256M');
 $global_cacheDir = './_cache';
 $global_appDataFile = $global_cacheDir . '/app_data.json';
 $global_logFile = $global_cacheDir.'/log';
