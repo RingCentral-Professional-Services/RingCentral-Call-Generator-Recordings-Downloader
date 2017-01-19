@@ -3,6 +3,10 @@
 $number = 'unknown';
 $indicator = null;
 $otherNumber = 'unknown';
+$legs = null;
+if(property_exists($callLog, 'legs')) {
+    $legs = $callLog->legs;
+}
 
 if($callLog->direction == "Inbound") {
     $indicator = "from";
@@ -38,7 +42,7 @@ if($callLog->direction == "Inbound") {
     }
 }
 
-$extension = getExtension($number, $phoneNumbers, $accountExtensions);
+$extension = getExtension($number, $phoneNumbers, $accountExtensions, $legs);
 if(!is_null($extension)){
     $filePath = ($extension->name).'/'.substr($callLog->startTime, 0, 10).'/'.
         $indicator."_".$otherNumber."_".substr($callLog->startTime, 11, 8)."_".$callLog->recording->id;

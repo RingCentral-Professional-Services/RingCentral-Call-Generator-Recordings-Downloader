@@ -50,7 +50,7 @@ function retrieveRecording($platform, $callLog) {
     );    
 }
 
-function getExtension($number, $phoneNumbers, $extensions) {
+function getExtension($number, $phoneNumbers, $extensions, $legs) {
     
     foreach($extensions as $ext) {
         if(property_exists($ext, 'extensionNumber')){
@@ -68,6 +68,18 @@ function getExtension($number, $phoneNumbers, $extensions) {
                     if($ext->extensionNumber == $phoneNumber->extension->extensionNumber) {
                         return $ext;
                     }    
+                }
+            }
+        }
+    }
+
+    if(!is_null($legs)) {
+        foreach ($legs as $leg) {
+            if(property_exists($leg->to, 'phoneNumber')) {
+                if($number == $leg->to->phoneNumber) {
+                    if(property_exists($leg->to, 'name')) {
+                        return $leg->to;
+                    }
                 }
             }
         }

@@ -18,14 +18,14 @@ function getCallLogItems($callLogs, $accountExtensions, $phoneNumbers, $logFile)
         $filePath = '';
         try {
             require('./modules/file_struct_s3.php');
+            array_push($callLogItems, array(
+                'recordingId' => $callLog->recording->id,
+                'filePath' => $filePath,
+                'recordingUrl' => $callLog->recording->contentUri
+            ));
         }catch(Exception $e) {
             rcLog($logFile, 2, 'Error occurs when saving call log '.$callLog->id.' as file: '.$e->getMessage());
         }
-        array_push($callLogItems, array(
-            'recordingId' => $callLog->recording->id,
-            'filePath' => $filePath,
-            'recordingUrl' => $callLog->recording->contentUri
-        ));
     }
     return $callLogItems;
 }

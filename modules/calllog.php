@@ -18,7 +18,8 @@ try {
                 'dateFrom' => date('Y-m-d\TH:i:s\Z', $dateFromTime),
                 'dateTo' => date('Y-m-d\TH:i:s\Z', $dateToTime),
                 'type' => 'Voice',
-                'perPage' => 1000
+                'perPage' => 1000,
+                'view' => 'Detailed'
             ));
         }
         catch(Exception $e){
