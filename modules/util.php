@@ -13,6 +13,10 @@ function requestMultiPages($platform, $url, $options) {
         $apiResponse = $platform->get($url, $options);
         $apiResponseJSONArray = $apiResponse->json();
         $records = $apiResponseJSONArray->records;
+
+	if (count($records)==0) {
+		break;
+	}
         
         foreach ($records as $record) {
             array_push($results, $record);
@@ -99,4 +103,7 @@ function rcLog($logFile, $level, $message) {
         }
         file_put_contents($logFile, $currentTime."[".$info."]"." -> ".$message.PHP_EOL, FILE_APPEND);
     }
+}
+
+function convertCallLogsTimezone($callLogs) {
 }
