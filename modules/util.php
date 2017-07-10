@@ -54,6 +54,29 @@ function retrieveRecording($platform, $callLog) {
     );    
 }
 
+// Add owner extension info for each call log item
+function populateCallLogsOwner($callLogs, $phoneNumbers, $extensions) {
+	foreach($callLogs as $callLog) {
+		$ownerNumber=null;
+		$owner=null;
+		if($callLog->direction=="Inbound") {
+			$owner=$callLog->to;
+		} else {
+			$owner=$callLog->from;
+		}
+		if(isset($owner->phoneNumber)) {
+			$ownerNumber=$owner->phoneNumber;
+		} else if(isset($owner->extensionNumber)) {
+			$ownerNumber=$owner->extensionNumber;
+		} else {
+		//	echo "No owner info found.\n";
+			$callLog->extension=null;
+			continue;
+		}
+		$callLog->extension=getExtension($ownerNumber, $phoneNumbers, $extensions, $callLog->legs);
+	}
+}
+
 function getExtension($number, $phoneNumbers, $extensions, $legs) {
     
     foreach($extensions as $ext) {
@@ -106,4 +129,13 @@ function rcLog($logFile, $level, $message) {
 }
 
 function convertCallLogsTimezone($callLogs) {
+	echo "coverting Timezones...";
+	foreach($callLogs as $callLog) {
+		if(isset($callLog->extension)) {
+			var_dump($callLog->extension->extensionNumber) ;
+		} else {
+			echo ">>>>>No extension found.\n";
+		}
+	}
+	unset($callLog);
 }
