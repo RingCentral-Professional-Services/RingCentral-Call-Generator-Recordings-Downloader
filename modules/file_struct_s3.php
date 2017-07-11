@@ -42,11 +42,12 @@ if($callLog->direction == "Inbound") {
     }
 }
 
-$extension = getExtension($number, $phoneNumbers, $accountExtensions, $legs);
-if(!is_null($extension)){
-    $filePath = ($extension->name).'/'.substr($callLog->startTime, 0, 10).'/'.
-        $indicator."_".$otherNumber."_".substr($callLog->startTime, 11, 8)."_".$callLog->recording->id;
-}else {
-    $filePath = $number.'/'.substr($callLog->startTime, 0, 10).'/'.
-        $indicator."_".$otherNumber."_".substr($callLog->startTime, 11, 8)."_".$callLog->recording->id;
+$callLogOwner=null;
+if(isset($callLog->extension)) {
+	$callLogOwner=$callLog->extension->name;
+} else {
+	$callLogOwner=$number;
 }
+$callStartTime=$callLog->startTime;
+$filePath="$callLogOwner/{$callStartTime->format('Y-m-d')}/{$indicator}_{$otherNumber}_{$callStartTime->format('H:i:s')}_{$callLog->recording->id}";
+echo "Call recording file path: $filePath\n";
