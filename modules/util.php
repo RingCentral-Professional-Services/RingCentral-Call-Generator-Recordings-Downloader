@@ -1,48 +1,5 @@
 <?php
 
-function requestMultiPages($platform, $url, $options) {
-    
-    $results = array();
-    
-    $pageCount = 1;
-    $flag = true;
-    
-    while($flag) {
-        
-        $options['page'] = $pageCount;
-        $apiResponse = $platform->get($url, $options);
-        $apiResponseJSONArray = $apiResponse->json();
-        $records = $apiResponseJSONArray->records;
-
-	if (count($records)==0) {
-		break;
-	}
-        
-        foreach ($records as $record) {
-            array_push($results, $record);
-        } 
-        
-        if(property_exists($apiResponseJSONArray->paging, 'totalPages')) {
-            $totalPages = $apiResponseJSONArray->paging->totalPages;
-            $page = $apiResponseJSONArray->paging->page;
-            if($page <= $totalPages) {
-                $pageCount = $pageCount + 1;
-                if($page == $totalPages) {
-                    $flag = false;
-                }
-            }
-        }else {
-            if(isset($apiResponseJSONArray->navigation->nextPage)){
-                $pageCount = $pageCount + 1;
-            }else{
-                $flag = false;
-            }
-        }
-    }
-    
-    return $results;
-}
-
 function retrieveRecording($platform, $callLog) {
     $uri = $callLog['recordingUrl'];
     $apiResponse = $platform->get($uri);

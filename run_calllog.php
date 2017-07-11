@@ -6,6 +6,9 @@ use RingCentral\SDK\SDK;
 
 
 require('./vendor/autoload.php');
+require('./modules/util.php');
+require('./modules/rc_api.php');
+require('./modules/extension.php');
 
 date_default_timezone_set ('UTC');
 
@@ -21,14 +24,14 @@ $rcsdk = new SDK($_ENV['RC_AppKey'], $_ENV['RC_AppSecret'], $_ENV['RC_Server'], 
 $platform = $rcsdk->platform();
 
 require('./modules/init.php');
-require('./modules/util.php');
-
-rcLog($global_logFile, 1, 'Start to retrieve call logs from RingCentral PAS.');
-
+#rcLog($global_logFile, 1, 'Start to retrieve call logs from RingCentral PAS.');
 require('./modules/auth.php');
-require('./modules/extension.php');
-require('./modules/calllog.php');
-require('./modules/save_calllog.php');
+$global_extensions=getAllExtensions($platform);
+echo "Total number of extensions ".count($global_extensions).".\n";
+$global_phoneNumbers=getAllPhoneNumbers($platform);
+echo "Total number of phone numbers ".count($global_phoneNumbers).".\n";
+#require('./modules/calllog.php');
+#require('./modules/save_calllog.php');
 
 
 $global_appData['lastRunningTime'] = $global_currentTime;
