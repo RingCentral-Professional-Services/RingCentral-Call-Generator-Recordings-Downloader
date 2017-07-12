@@ -42,6 +42,8 @@ function rcApiGet($platform, $url, $options) {
 			sleep($retryAfter);
 			return rcApiGet($platform, $url, $options);
 		}
-		throw $e;
+		echo "API error, http $status, {$e->getMessage()}, will retry\n";
+		sleep(3);
+		return rcApiGet($platform, $url, $options);	
 	}
 }
