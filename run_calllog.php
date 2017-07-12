@@ -25,6 +25,7 @@ $rcsdk = new SDK($_ENV['RC_AppKey'], $_ENV['RC_AppSecret'], $_ENV['RC_Server'], 
 $platform = $rcsdk->platform();
 
 require('./modules/init.php');
+require('./modules/save_recording_s3.php');
 #rcLog($global_logFile, 1, 'Start to retrieve call logs from RingCentral PAS.');
 require('./modules/auth.php');
 $global_extensions=getAllExtensions($platform);
@@ -42,10 +43,11 @@ iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($glob
 		populateCallLogOwner($callLog, $global_phoneNumbers, $global_extensions);
 		parseCallLogDate($callLog, $platform);
 		$recording=parseCallRecording($callLog);
+		saveRecordingS3($recording, $platform);
+		echo "Call recording {$recording['filePath']} saved to S3.\n";
 	}
 	echo "\n";
 });
-#require('./modules/save_calllog.php');
 
 
 $global_appData['lastRunningTime'] = $global_currentTime;

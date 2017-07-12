@@ -1,16 +1,5 @@
 <?php
 
-function retrieveRecording($platform, $callLog) {
-    $uri = $callLog['recordingUrl'];
-    $apiResponse = $platform->get($uri);
-    $ext = ($apiResponse->response()->getHeader('Content-Type')[0] == 'audio/mpeg')
-        ? 'mp3' : 'wav';
-    return array(
-        'ext' => $ext,
-        'data' => $apiResponse->raw()
-    );
-}
-
 // Add owner extension info for each call log item
 function populateCallLogOwner($callLog, $phoneNumbers, $extensions) {
 	$ownerNumber=null;
