@@ -9,6 +9,7 @@ require('./vendor/autoload.php');
 require('./modules/util.php');
 require('./modules/rc_api.php');
 require('./modules/extension.php');
+require('./modules/calllog.php');
 
 date_default_timezone_set ('UTC');
 
@@ -30,7 +31,12 @@ $global_extensions=getAllExtensions($platform);
 echo "Total number of extensions ".count($global_extensions).".\n";
 $global_phoneNumbers=getAllPhoneNumbers($platform);
 echo "Total number of phone numbers ".count($global_phoneNumbers).".\n";
-#require('./modules/calllog.php');
+
+iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($global_phoneNumbers, $global_extensions, $platform) {
+	echo "Get call log page {$page->paging->page}.\n";
+	populateCallLogsOwner($page->records, $global_phoneNumbers, $global_extensions);
+	parseCallLogsDate($page->records, $platform);
+});
 #require('./modules/save_calllog.php');
 
 

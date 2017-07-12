@@ -22,6 +22,14 @@ if (file_exists($global_appDataFile)) {
     $global_appData = json_decode(file_get_contents($global_appDataFile), true);
 }
 
+   $maxRetrieveTimeSpan = $_ENV['RC_maxRetrieveTimespan'];
+
+    $dateFromTime = $global_currentTime - $global_timeOffset - $maxRetrieveTimeSpan;
+    $dateToTime = $global_currentTime - $global_timeOffset;
+
+    if(isset($global_appData['lastRunningTime'])){
+        $dateFromTime = $global_appData['lastRunningTime'] - $global_timeOffset + 1;
+    }
 
 
 
