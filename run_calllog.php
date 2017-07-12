@@ -19,7 +19,7 @@ $dotenv = new Dotenv\Dotenv(getcwd());
 
 $dotenv->load();
 
-require('./modules/_bootstrap.php');
+#require('./modules/_bootstrap.php');
 
 $rcsdk = new SDK($_ENV['RC_AppKey'], $_ENV['RC_AppSecret'], $_ENV['RC_Server'], 'App', '1.0');
 $platform = $rcsdk->platform();
@@ -41,6 +41,7 @@ iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($glob
 		$callLog=$callLogs[$i-1];
 		populateCallLogOwner($callLog, $global_phoneNumbers, $global_extensions);
 		parseCallLogDate($callLog, $platform);
+		$recording=parseCallRecording($callLog);
 	}
 	echo "\n";
 });
