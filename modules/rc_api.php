@@ -34,6 +34,14 @@ function rcApiGet($platform, $url, $options) {
 	try{
 		return $platform->get($url, $options);
 	} catch(Exception $e) {
-		var_dump($e);
+		$res=$e->apiResponse()->response();
+		$status=$res->getStatusCode();
+		$retryAfter=(int)$res->getHeader('Retry-After')[0];
+		if($status==429) {
+			echo "RingCentral API rate limit hit when get $url, wait for $retryAfter seconds.\n";
+			sleep($retryAfter);
+			return rcApiGet($platform, $url, $options);
+		}
+		throw $e;
 	}
 }

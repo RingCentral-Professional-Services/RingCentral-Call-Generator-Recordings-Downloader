@@ -81,7 +81,6 @@ function getDetailExtension($id, $platform) {
 	// rate limit group light
 	$detailExt = $platform->get("/account/~/extension/$id")->json();
 	$global_detailExtensions[$id]=$detailExt;
-	sleep(1); // delay the execution to avoid rate limit
 	return $detailExt;
 }
 
