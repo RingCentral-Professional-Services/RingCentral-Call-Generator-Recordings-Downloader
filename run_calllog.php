@@ -34,8 +34,15 @@ echo "Total number of phone numbers ".count($global_phoneNumbers).".\n";
 
 iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($global_phoneNumbers, $global_extensions, $platform) {
 	echo "Get call log page {$page->paging->page}.\n";
-	populateCallLogsOwner($page->records, $global_phoneNumbers, $global_extensions);
-	parseCallLogsDate($page->records, $platform);
+	$callLogs=$page->records;
+	$count=count($callLogs);
+	for($i=1; $i<=$count; $i++) {
+		echo "Processing call log $i/$count.\r";
+		$callLog=$callLogs[$i-1];
+		populateCallLogOwner($callLog, $global_phoneNumbers, $global_extensions);
+		parseCallLogDate($callLog, $platform);
+	}
+	echo "\n";
 });
 #require('./modules/save_calllog.php');
 

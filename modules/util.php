@@ -12,26 +12,24 @@ function retrieveRecording($platform, $callLog) {
 }
 
 // Add owner extension info for each call log item
-function populateCallLogsOwner($callLogs, $phoneNumbers, $extensions) {
-	foreach($callLogs as $callLog) {
-		$ownerNumber=null;
-		$owner=null;
-		if($callLog->direction=="Inbound") {
-			$owner=$callLog->to;
-		} else {
-			$owner=$callLog->from;
-		}
-		if(isset($owner->phoneNumber)) {
-			$ownerNumber=$owner->phoneNumber;
-		} else if(isset($owner->extensionNumber)) {
-			$ownerNumber=$owner->extensionNumber;
-		} else {
-		//	echo "No owner info found.\n";
-			$callLog->extension=null;
-			continue;
-		}
-		$callLog->extension=getExtension($ownerNumber, $phoneNumbers, $extensions, $callLog->legs);
+function populateCallLogOwner($callLog, $phoneNumbers, $extensions) {
+	$ownerNumber=null;
+	$owner=null;
+	if($callLog->direction=="Inbound") {
+		$owner=$callLog->to;
+	} else {
+		$owner=$callLog->from;
 	}
+	if(isset($owner->phoneNumber)) {
+		$ownerNumber=$owner->phoneNumber;
+	} else if(isset($owner->extensionNumber)) {
+		$ownerNumber=$owner->extensionNumber;
+	} else {
+	//	echo "No owner info found.\n";
+		$callLog->extension=null;
+		return;
+	}
+	$callLog->extension=getExtension($ownerNumber, $phoneNumbers, $extensions, $callLog->legs);
 }
 
 function getExtension($number, $phoneNumbers, $extensions, $legs) {
@@ -99,18 +97,11 @@ function getDetailExtension($id, $platform) {
 }
 
 // Convert call log startTime to DateTime object with timezone
-function parseCallLogsDate($callLogs, $platform) {
-	$total=count($callLogs);
-	$count=0;
-	foreach($callLogs as $callLog) {
-		$count++;
-		echo "Parsing call log date $count/$total.\r";
-		$callLog->startTime = new DateTime($callLog->startTime);
-		if(isset($callLog->extension)) {
-			$timezone = getDetailExtension($callLog->extension->id, $platform)->regionalSettings->timezone;
-			$callLog->startTime->setTimezone(new DateTimeZone($timezone->name));
-		} else {
-		}
+function parseCallLogDate($callLog, $platform) {
+	$callLog->startTime = new DateTime($callLog->startTime);
+	if(isset($callLog->extension)) {
+		$timezone = getDetailExtension($callLog->extension->id, $platform)->regionalSettings->timezone;
+		$callLog->startTime->setTimezone(new DateTimeZone($timezone->name));
+	} else {
 	}
-	echo "\n";
 }
