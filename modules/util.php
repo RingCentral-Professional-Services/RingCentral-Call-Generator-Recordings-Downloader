@@ -79,7 +79,7 @@ function getDetailExtension($id, $platform) {
 		return $global_detailExtensions[$id];
 	}
 	// rate limit group light
-	$detailExt = $platform->get("/account/~/extension/$id")->json();
+	$detailExt = rcApiGet($platform, "/account/~/extension/$id", null)->json();
 	$global_detailExtensions[$id]=$detailExt;
 	return $detailExt;
 }
@@ -88,7 +88,11 @@ function getDetailExtension($id, $platform) {
 function parseCallLogDate($callLog, $platform) {
 	$callLog->startTime = new DateTime($callLog->startTime);
 	if(isset($callLog->extension)) {
-		$timezone = getDetailExtension($callLog->extension->id, $platform)->regionalSettings->timezone;
+		$extInfo = getDetailExtension($callLog->extension->id, $platform);
+		if(!isset($extInfo->regionalSettings->timezone->name)) {
+			return;
+		}
+		$timezone = $extInfo->regionalSettings->timezone;
 		$callLog->startTime->setTimezone(new DateTimeZone($timezone->name));
 	} else {
 	}
