@@ -13,22 +13,22 @@ function iterateCallLogs($platform, $dateFromTime, $dateToTime, callable $cb) {
 
 
 function parseCallRecording($callLog) {
-$number=null;
-$otherNumber="blocked";
-$callLogOwner=null;
-$indicator=null;
+	$number=null;
+	$otherNumber="blocked";
+	$callLogOwner=null;
+	$indicator=null;
 
-if($callLog->direction=="Inbound") {
-	$indicator="from";
-	$number=getCallerNumber($callLog->to);
-	if(isset($callLog->from)) {
-		$otherNumber=getCallerNumber($callLog->from);
+	if($callLog->direction=="Inbound") {
+		$indicator="from";
+		$number=getCallerNumber($callLog->to);
+		if(isset($callLog->from)) {
+			$otherNumber=getCallerNumber($callLog->from);
+		}
+	} else {
+		$indicator="to";
+		$number=getCallerNumber($callLog->from);
+		$otherNumber=getCallerNumber($callLog->to);
 	}
-} else {
-	$indicator="to";
-	$number=getCallerNumber($callLog->from);
-	$otherNumber=getCallerNumber($callLog->to);
-}
 	if(isset($callLog->extension)) {
 		$callLogOwner=$callLog->extension->name;
 	} else {
