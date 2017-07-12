@@ -37,6 +37,7 @@ iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($glob
 	echo "Get call log page {$page->paging->page}.\n";
 	$callLogs=$page->records;
 	$count=count($callLogs);
+	$startTime=time();
 	for($i=1; $i<=$count; $i++) {
 		echo "Processing call log $i/$count.\r";
 		$callLog=$callLogs[$i-1];
@@ -44,7 +45,10 @@ iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($glob
 		parseCallLogDate($callLog, $platform);
 		$recording=parseCallRecording($callLog);
 		saveRecordingS3($recording, $platform);
-		echo "Call recording {$recording['filePath']} saved to S3.\n";
+		echo "Call recording [{$recording['filePath']}] saved to S3.\n";
+		$timeElapsed=time()-$startTime;
+		$speed=round($timeElapsed/$i, 2);
+		echo "                                 Speed: $speed s/item, Time elapsed: {$timeElapsed}s.\r";
 	}
 	echo "\n";
 });
