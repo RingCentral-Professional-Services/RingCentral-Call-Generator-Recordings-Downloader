@@ -35,7 +35,7 @@ function parseCallRecording($callLog) {
 		$callLogOwner=$number;
 	}
 	$callStartTime=$callLog->startTime;
-	$filePath="$callLogOwner/{$callStartTime->format('Y-m-d')}/{$indicator}_{$otherNumber}_{$callStartTime->format('H:i:s')}_{$callLog->recording->id}";
+	$filePath="$callLogOwner/{$callStartTime->format('Y-m-d')}/{$indicator}_{$otherNumber}_{$callStartTime->format('H:i:s')}_{$callLog->recording->id}_{$callLog->id}";
 	return array(
 		'recordingId' => $callLog->recording->id,
 		'filePath' => $filePath,
