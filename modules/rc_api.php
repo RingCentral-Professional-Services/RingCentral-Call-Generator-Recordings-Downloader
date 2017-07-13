@@ -29,15 +29,35 @@ function rcIterateAllPages($platform, $url, $options, callable $cb) {
     return $pageCount;
 }
 
+const RC_API_LIMIT = 40;
+const RC_API_WINDOW = 60;
+function rcApiControlRate() {
+	static $windowStart;
+	static $remaining = RC_API_LIMIT;
+	if(!isset($windowStart)) {
+		$windowStart=time();
+	}
+	if($remaining==0) {
+		$windowLeft=$windowStart+RC_API_WINDOW-time();
+		if($windowLeft>0) {
+			echo "Rc API limit reached, waiting for $windowLeft s.\n";
+			sleep($windowLeft);
+		}
+		$remaining=RC_API_LIMIT;
+		$windowStart=time();
+	}
+}
+
 // Wrapper of rc api get method, handle rate limit
 function rcApiGet($platform, $url, $options) {
+	rcApiControlRate();
 	try{
 		return $platform->get($url, $options);
 	} catch(Exception $e) {
 		$res=$e->apiResponse()->response();
 		$status=$res->getStatusCode();
-		$retryAfter=(int)$res->getHeader('Retry-After')[0];
 		if($status==429) {
+			$retryAfter=(int)$res->getHeader('Retry-After')[0];
 			echo "RingCentral API rate limit hit when get $url, wait for $retryAfter seconds.\n";
 			sleep($retryAfter);
 			return rcApiGet($platform, $url, $options);
