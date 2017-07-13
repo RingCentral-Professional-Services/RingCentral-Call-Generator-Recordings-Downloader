@@ -58,12 +58,16 @@ function rcApiGet($platform, $url, $options) {
 		$status=$res->getStatusCode();
 		if($status==429) {
 			$retryAfter=(int)$res->getHeader('Retry-After')[0];
-			echo "RingCentral API rate limit hit when get $url, wait for $retryAfter seconds.\n";
+			echo "RingCentral API rate limit hit when get $url, wait for {$retryAfter}s.\n";
 			sleep($retryAfter);
 			return rcApiGet($platform, $url, $options);
 		}
-		echo "API error, http $status, {$e->getMessage()}, will retry\n";
-		sleep(3);
-		return rcApiGet($platform, $url, $options);	
+		if($status>=500 && $status<600) {
+			$retryAfter=3;
+			echo "Rc API server error: http $status, {$e->getMessage()}. Will retry in {$retryAfter}s.\n";
+			sleep($retryAfter);
+			return rcApiGet($platform, $url, $options);
+		}
+		throw $e;
 	}
 }

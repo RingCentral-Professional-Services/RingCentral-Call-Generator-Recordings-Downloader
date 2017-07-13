@@ -19,7 +19,7 @@ $dotenv = new Dotenv\Dotenv(getcwd());
 
 $dotenv->load();
 
-#require('./modules/_bootstrap.php');
+require('./modules/_bootstrap.php');
 
 $rcsdk = new SDK($_ENV['RC_AppKey'], $_ENV['RC_AppSecret'], $_ENV['RC_Server'], 'App', '1.0');
 $platform = $rcsdk->platform();
