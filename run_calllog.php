@@ -26,13 +26,16 @@ $platform = $rcsdk->platform();
 
 require('./modules/init.php');
 require('./modules/save_recording_s3.php');
-#rcLog($global_logFile, 1, 'Start to retrieve call logs from RingCentral PAS.');
 require('./modules/auth.php');
+echo "Getting all extensions: ";
 $global_extensions=getAllExtensions($platform);
-echo "Total number of extensions ".count($global_extensions).".\n";
-$global_phoneNumbers=getAllPhoneNumbers($platform);
-echo "Total number of phone numbers ".count($global_phoneNumbers).".\n";
+echo count($global_extensions)." got.\n";
 
+echo "Getting all phone numbers: ";
+$global_phoneNumbers=getAllPhoneNumbers($platform);
+echo count($global_phoneNumbers)." got.\n";
+
+echo "Loading call log from ".date('Y-m-d H:i:s', $dateFromTime)." to ".date('Y-m-d H:i:s', $dateToTime).".\n";
 iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($global_phoneNumbers, $global_extensions, $platform) {
 	echo "Get call log page {$page->paging->page}.\n";
 	$callLogs=$page->records;
@@ -52,6 +55,7 @@ iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($glob
 	}
 	echo "\n";
 });
+echo "All call logs processed.\n";
 
 
 $global_appData['lastRunningTime'] = $global_currentTime;
