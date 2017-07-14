@@ -50,8 +50,8 @@ iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($glob
 		saveRecordingS3($recording, $platform);
 		echo "Call recording [{$recording['filePath']}] saved to S3.\n";
 		$timeElapsed=time()-$startTime;
-		$speed=round($timeElapsed/$i, 2);
-		echo "                                 Speed: $speed s/item, Time elapsed: {$timeElapsed}s.\r";
+		$speed=round($i*60/$timeElapsed, 2);
+		echo "                                 Speed: $speed logs/min, Time elapsed: {$timeElapsed}s.\r";
 	}
 	echo "\n";
 });
