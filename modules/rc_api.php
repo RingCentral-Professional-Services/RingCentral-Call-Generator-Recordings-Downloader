@@ -29,7 +29,7 @@ function rcIterateAllPages($platform, $url, $options, callable $cb) {
     return $pageCount;
 }
 
-const RC_API_LIMIT = 40;
+const RC_API_LIMIT = 61;
 const RC_API_WINDOW = 60;
 function rcApiControlRate() {
 	static $windowStart;
@@ -43,9 +43,10 @@ function rcApiControlRate() {
 			echo "Rc API limit reached, waiting for $windowLeft s.\n";
 			sleep($windowLeft);
 		}
-		$remaining=RC_API_LIMIT;
 		$windowStart=time();
+		$remaining=RC_API_LIMIT;
 	}
+	$remaining--;
 }
 
 // Wrapper of rc api get method, handle rate limit
