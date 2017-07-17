@@ -36,9 +36,16 @@ function parseCallRecording($callLog) {
 	}
 	$callStartTime=$callLog->startTime;
 	$filePath="$callLogOwner/{$callStartTime->format('Y-m-d')}/{$indicator}_{$otherNumber}_{$callStartTime->format('H:i:s')}_{$callLog->recording->id}_{$callLog->id}";
+
+	$filePath2=null;
+	if(isset($callLog->from->extensionNumber) && isset($callLog->to->extensionNumber)) {
+		$indicator2=$indicator=="from" ? "to" : "from";
+		$filePath2="$callLogOwner/{$callStartTime->format('Y-m-d')}/{$indicator2}_{$number}_{$callStartTime->format('H:i:s')}_{$callLog->recording->id}_{$callLog->id}";
+	}
 	return array(
 		'recordingId' => $callLog->recording->id,
 		'filePath' => $filePath,
+		'filePath2' => $filePath2,
 		'recordingUrl' => $callLog->recording->contentUri
 	);
 }
