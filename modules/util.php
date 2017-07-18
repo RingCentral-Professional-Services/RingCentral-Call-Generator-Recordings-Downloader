@@ -19,6 +19,10 @@ function populateCallLogOwner($callLog, $phoneNumbers, $extensions) {
 		return;
 	}
 	$callLog->extension=getExtension($ownerNumber, $phoneNumbers, $extensions, $callLog->legs);
+
+	if(isset($callLog->from->extensionNumber)) {
+		$callLog->from = getExtension($callLog->from->extensionNumber, $phoneNumbers, $extensions, $callLog->legs);
+	}
 }
 
 function getExtension($number, $phoneNumbers, $extensions, $legs) {

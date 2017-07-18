@@ -21,6 +21,12 @@ function saveRecordingS3($recording, $platform) {
 	$s3FileName = "s3://".$_ENV['amazonS3Bucket'].'/'.$recording['filePath'].'.'.$file['ext'];
 	// Write the file to S3 Bucket
 	file_put_contents($s3FileName, $file['data']);
+
+	if($recording['filePath2']) {
+		$s3FileName="s3://".$_ENV['amazonS3Bucket'].'/'.$recording['filePath2'].'.'.$file['ext'];
+		file_put_contents($s3FileName, $file['data']);
+
+	}
 }
 
 function retrieveRecording($platform, $uri) {
