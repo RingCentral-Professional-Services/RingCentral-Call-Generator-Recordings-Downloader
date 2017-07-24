@@ -34,5 +34,18 @@ function retrieveRecording($platform, $uri) {
 }
 
 function saveNoRecordingCalls($logs) {
-var_dump($logs);
+	foreach($logs as $path => $csvRecords) {
+		$s3FileName = "s3://".$_ENV['amazonS3Bucket'].'/'.$path;
+		$existed = file_exists($s3FileName);
+		$s3fd = fopen($s3FileName, 'a');
+		if(!$existed) {
+			echo "Creating csv file $path.\n";
+			fputcsv($s3fd, array('Direction', 'Extension Name', 'From Number', 'To Number', 'Date/Time', 'Call Record ID'));
+		}
+		echo "Writing to csv file $path.\n";
+		foreach($csvRecords as $csvRecord) {
+			fputcsv($s3fd, $csvRecord);
+		}
+		fclose($s3fd);
+	}
 }

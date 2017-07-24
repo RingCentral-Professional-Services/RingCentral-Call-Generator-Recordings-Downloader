@@ -130,7 +130,7 @@ function parseCallLogDate($callLog, $platform) {
 	$callLog->startTime = new DateTime($callLog->startTime);
 	if(isset($callLog->extension)) {
 		$extId = $callLog->extension->id;
-	} else if(isset($callLog->extensions)) {
+	} else if(isset($callLog->extensions['from'])) {
 		$extId = $callLog->extensions['from']->id;
 	} else {
 		return;
