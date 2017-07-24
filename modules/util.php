@@ -2,65 +2,103 @@
 
 // Add owner extension info for each call log item
 function populateCallLogOwner($callLog, $phoneNumbers, $extensions) {
-	$ownerNumber=null;
-	$owner=null;
-	if($callLog->direction=="Inbound") {
-		$owner=$callLog->to;
+	$owner = getCallLogOwner($callLog, $extensions, $phoneNumbers);
+	if(isInternalCall($callLog)) {
+		$callLog->extension = $owner['to'];
+		$callLog->extension2 = $owner['from'];
 	} else {
-		$owner=$callLog->from;
-	}
-	if(isset($owner->phoneNumber)) {
-		$ownerNumber=$owner->phoneNumber;
-	} else if(isset($owner->extensionNumber)) {
-		$ownerNumber=$owner->extensionNumber;
-	} else {
-	//	echo "No owner info found.\n";
-		$callLog->extension=null;
-		return;
-	}
-	$callLog->extension=getExtension($ownerNumber, $phoneNumbers, $extensions, $callLog->legs);
-
-	if(isset($callLog->from->extensionNumber)) {
-		$callLog->from = getExtension($callLog->from->extensionNumber, $phoneNumbers, $extensions, $callLog->legs);
+		$callLog->extension = $owner;
 	}
 }
 
-function getExtension($number, $phoneNumbers, $extensions, $legs) {
-    
-    foreach($extensions as $ext) {
-        if(property_exists($ext, 'extensionNumber')){
-            if($number == $ext->extensionNumber) {
-                return $ext;
-            }    
-        }
-    }
-    
-    foreach ($phoneNumbers as $phoneNumber) {
-        if($number == $phoneNumber->phoneNumber) {
-            foreach ($extensions as $ext) {
-                if(isset($phoneNumber->extension) && property_exists($phoneNumber->extension, 'extensionNumber') 
-                    && property_exists($ext, 'extensionNumber')){
-                    if($ext->extensionNumber == $phoneNumber->extension->extensionNumber) {
-                        return $ext;
-                    }    
-                }
-            }
-        }
-    }
+// Get the owner extension for the account call log item
+function getCallLogOwner($callLog, $extensions, $phoneNumbers) {
+	if(isset($callLog->from))
+		$from = $callLog->from;
+	$to = $callLog->to;
 
-    if(!is_null($legs)) {
-        foreach ($legs as $leg) {
-            if(property_exists($leg->to, 'phoneNumber')) {
-                if($number == $leg->to->phoneNumber) {
-                    if(property_exists($leg->to, 'name')) {
-                        return $leg->to;
-                    }
-                }
-            }
-        }
-    }
-    
-    return null;
+	#1 Identify internal calls
+	if(isInternalCall($callLog)) {
+		$fromExt = getCallerExtension($from, $extensions, $phoneNumbers);
+		$toExt = getCallerExtension($to, $extensions, $phoneNumbers);
+		return array('from'=>$fromExt, 'to'=>$toExt);
+	}
+
+	$ownerExt = null;
+
+	#2 Find by extensions in the legs
+	$extIds=array();
+	if(isset($callLog->legs)) {
+		foreach($callLog->legs as $leg) {
+			if(isset($leg->extension->id) && !in_array($leg->extension->id, $extIds)) {
+				array_push($extIds, $leg->extension->id);
+			}
+		}
+	}
+	if(count($extIds)==1) {
+		$ownerExt = getExtensionById($extIds[0], $extensions);
+	}
+
+	#3 Find by from/to number
+	if(!isset($ownerExt)) {
+		$ownerCaller = $callLog->direction == 'Inbound' ? $callLog->to : $callLog->from;
+		$ownerExt = getCallerExtension($ownerCaller, $extensions, $phoneNumbers);
+	}
+
+	return $ownerExt;
+}
+
+
+function getCallerExtension($caller, $extensions, $phoneNumbers) {
+	$ext = null;
+	if(isset($caller->extensionNumber)) {
+		$ext = getExtensionByNumber($caller->extensionNumber, $extensions);
+	}
+
+	if(!isset($ext) && isset($caller->phoneNumber)) {
+		$phone = getPhoneNumberInfo($caller->phoneNumber, $phoneNumbers);
+		if(isset($phone->extension->id)) {
+			$ext = getExtensionById($phone->extension->id, $extensions);
+		}
+	}
+
+	if(!isset($ext) && isset($caller->name)) {
+		foreach($extensions as $e) {
+			if(isset($e->name) && ($e->name == $caller->name)) {
+				$ext = $e;
+				break;
+			}
+		}
+	}
+	return $ext;
+}
+
+function getPhoneNumberInfo($number, $phoneNumbers) {
+	foreach($phoneNumbers as $pn) {
+		if($pn->phoneNumber == $number) {
+			return $pn;
+		}
+	}
+}
+
+function getExtensionByNumber($extensionNumber, $extensions) {
+	foreach($extensions as $ext) {
+		if(isset($ext->extensionNumber) && $ext->extensionNumber == $extensionNumber) {
+			return $ext;
+		}
+	}
+}
+
+function getExtensionById($id, $extensions) {
+	foreach($extensions as $ext) {
+		if($ext->id == $id) {
+			return $ext;
+		}
+	}
+}
+
+function isInternalCall($callLog) {
+	return isset($callLog->from->extensionNumber);
 }
 
 function rcLog($logFile, $level, $message) {
