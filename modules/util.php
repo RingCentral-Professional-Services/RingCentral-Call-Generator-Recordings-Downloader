@@ -4,8 +4,7 @@
 function populateCallLogOwner($callLog, $phoneNumbers, $extensions) {
 	$owner = getCallLogOwner($callLog, $extensions, $phoneNumbers);
 	if(isInternalCall($callLog)) {
-		$callLog->extension = $owner['to'];
-		$callLog->extension2 = $owner['from'];
+		$callLog->extensions = $owner;
 	} else {
 		$callLog->extension = $owner;
 	}
@@ -130,12 +129,16 @@ function getDetailExtension($id, $platform) {
 function parseCallLogDate($callLog, $platform) {
 	$callLog->startTime = new DateTime($callLog->startTime);
 	if(isset($callLog->extension)) {
-		$extInfo = getDetailExtension($callLog->extension->id, $platform);
-		if(!isset($extInfo->regionalSettings->timezone->name)) {
-			return;
-		}
-		$timezone = $extInfo->regionalSettings->timezone;
-		$callLog->startTime->setTimezone(new DateTimeZone($timezone->name));
+		$extId = $callLog->extension->id;
+	} else if(isset($callLog->extensions)) {
+		$extId = $callLog->extensions['from']->id;
 	} else {
+		return;
 	}
+	$extInfo = getDetailExtension($extId, $platform);
+	if(!isset($extInfo->regionalSettings->timezone->name)) {
+		return;
+	}
+	$timezone = $extInfo->regionalSettings->timezone;
+	$callLog->startTime->setTimezone(new DateTimeZone($timezone->name));
 }

@@ -19,10 +19,11 @@ $dotenv = new Dotenv\Dotenv(getcwd());
 
 $dotenv->load();
 
-require('./modules/_bootstrap.php');
+#require('./modules/_bootstrap.php');
 
 $rcsdk = new SDK($_ENV['RC_AppKey'], $_ENV['RC_AppSecret'], $_ENV['RC_Server'], 'App', '1.0');
 $platform = $rcsdk->platform();
+$noRecordingCalls = array();	# file path => array of csv lines
 
 require('./modules/init.php');
 require('./modules/save_recording_s3.php');
@@ -36,7 +37,7 @@ $global_phoneNumbers=getAllPhoneNumbers($platform);
 echo count($global_phoneNumbers)." got.\n";
 
 echo "Loading call log from ".date('Y-m-d H:i:s', $dateFromTime)." to ".date('Y-m-d H:i:s', $dateToTime).".\n";
-iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($global_phoneNumbers, $global_extensions, $platform) {
+iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use(&$noRecordingCalls, $global_phoneNumbers, $global_extensions, $platform) {
 	echo "Get call log page {$page->paging->page}.\n";
 	$callLogs=$page->records;
 	$count=count($callLogs);
@@ -46,15 +47,24 @@ iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use($glob
 		$callLog=$callLogs[$i-1];
 		populateCallLogOwner($callLog, $global_phoneNumbers, $global_extensions);
 		parseCallLogDate($callLog, $platform);
-		$recording=parseCallRecording($callLog);
-		saveRecordingS3($recording, $platform);
-		echo "Call recording [{$recording['filePath']}] saved to S3.\n";
+		if(isset($callLog->recording)) {
+			$recording=parseCallRecording($callLog);
+			saveRecordingS3($recording, $platform);
+			$paths = implode(", ", $recording['filePaths']);
+			echo "Call recording [$paths] saved to S3.\n";
+		}else {
+			logNoRecording($callLog, $noRecordingCalls);
+			echo "No recording for call log {$callLog->id}.\n";
+		}
 		$timeElapsed=time()-$startTime;
 		$speed=round($i*60/$timeElapsed, 2);
 		echo "                                 Speed: $speed logs/min, Time elapsed: {$timeElapsed}s.\r";
 	}
 	echo "\n";
 });
+
+saveNoRecordingCalls($noRecordingCalls);
+
 echo "All call logs processed.\n";
 
 
