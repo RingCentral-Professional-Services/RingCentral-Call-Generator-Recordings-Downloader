@@ -28,12 +28,15 @@ echo "Getting all phone numbers: ";
 $global_phoneNumbers=getAllPhoneNumbers($platform);
 echo count($global_phoneNumbers)." got.\n";
 
-$job_startTime = time();
-$dateToTime = $job_startTime - $global_timeOffset;
+$jobStartTime = time();
 if(isset($global_appData['lastRunningTime'])){
-    $dateFromTime = $global_appData['lastRunningTime'];
+	$dateFromTime = $global_appData['lastRunningTime'];
 } else {
-	$dateFromTime = $dateToTime - $maxRetrieveTimeSpan;
+	$dateFromTime = $jobStartTime - $global_timeOffset - $maxRetrieveTimeSpan;
+}
+$dateToTime = $dateFromTime + $maxRetrieveTimeSpan;
+if($dateToTime>$jobStartTime-$global_timeOffset) {
+	$dateToTime = $jobStartTime-$global_timeOffset;
 }
 
 $noRecordingCalls = array();	# file path => array of csv lines
@@ -73,9 +76,11 @@ echo "All call logs processed.\n";
 $global_appData['lastRunningTime'] = $dateToTime;
 file_put_contents($global_appDataFile, json_encode($global_appData, JSON_PRETTY_PRINT));
 
+echo "======End of job======\n\n";
 //<<<<<<<<End of job<<<<<<<
-$timeToNextJob = $maxRetrieveTimeSpan - (time()-$job_startTime);
+$timeToNextJob = $dateToTime + $global_timeOffset + $maxRetrieveTimeSpan - time();
 if($timeToNextJob > 0) {
+	echo "Wait for $timeToNextJob s to start next job.\n";
 	sleep($timeToNextJob);
 }
 
