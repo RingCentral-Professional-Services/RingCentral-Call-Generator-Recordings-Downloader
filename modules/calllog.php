@@ -66,7 +66,7 @@ function getCallLogFolder($callLog) {
 		if(isset($ownerCaller->name)) {
 			$owner = $ownerCallder->name;
 		} else {
-			$owner = getCallerNumber($ownerCaller);
+			$owner = '*Unmatched Numbers/'.getCallerNumber($ownerCaller);
 		}
 	}
 	return "$owner/{$callLog->startTime->format('Y-m-d')}/";
