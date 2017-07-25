@@ -13,6 +13,8 @@ require('./modules/extension.php');
 require('./modules/calllog.php');
 require('./modules/save_recording_s3.php');
 
+$cacheLifeTime = 24 * 60 * 60;
+
 $rcsdk = new SDK($_ENV['RC_AppKey'], $_ENV['RC_AppSecret'], $_ENV['RC_Server'], 'App', '1.0');
 $platform = $rcsdk->platform();
 
@@ -20,13 +22,16 @@ while(true) {
 //>>>>>>>>>>Run job>>>>>
 require('./modules/auth.php');
 
-echo "Getting all extensions: ";
-$global_extensions=getAllExtensions($platform);
-echo count($global_extensions)." got.\n";
+if(!isset($cacheLastUpdateTime) || (time()-$cacheLastUpdateTime)>$cacheLifeTime) {
+	echo "Getting all extensions: ";
+	$global_extensions=getAllExtensions($platform);
+	echo count($global_extensions)." got.\n";
 
-echo "Getting all phone numbers: ";
-$global_phoneNumbers=getAllPhoneNumbers($platform);
-echo count($global_phoneNumbers)." got.\n";
+	echo "Getting all phone numbers: ";
+	$global_phoneNumbers=getAllPhoneNumbers($platform);
+	echo count($global_phoneNumbers)." got.\n";
+	$cacheLastUpdateTime=time();
+}
 
 $jobStartTime = time();
 if(isset($global_appData['lastRunningTime'])){
