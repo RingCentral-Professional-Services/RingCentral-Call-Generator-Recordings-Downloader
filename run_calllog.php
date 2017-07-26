@@ -54,6 +54,9 @@ iterateCallLogs($platform, $dateFromTime, $dateToTime, function($page) use(&$noR
 	for($i=1; $i<=$count; $i++) {
 		echo "Processing call log $i/$count.\r";
 		$callLog=$callLogs[$i-1];
+		if(filteredCall($callLog)) {
+			continue;
+		}
 		populateCallLogOwner($callLog, $global_phoneNumbers, $global_extensions);
 		parseCallLogDate($callLog, $platform);
 		if(isset($callLog->recording)) {

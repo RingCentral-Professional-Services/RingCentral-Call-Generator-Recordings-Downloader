@@ -11,6 +11,11 @@ function iterateCallLogs($platform, $dateFromTime, $dateToTime, callable $cb) {
         ), $cb);
 }
 
+const CALL_ACTION_WHITE_LIST = array('VoIP Call', 'Phone Call', 'Emergency', 'Accept Call', 'FindMe', 'FollowMe', 'Ring Directly', 'RingOut Web', 'RingOut PC', 'RingMe', 'Transfer', 'E911', 'RingOut Mobile');
+function filteredCall($callLog) {
+	if(isset($callLog->recording)) return false;
+	return !in_array($callLog->action, CALL_ACTION_WHITE_LIST);
+}
 
 function parseCallRecording($callLog) {
 	$paths = array();
