@@ -19,7 +19,7 @@ function saveRecordingS3($recording, $platform) {
 	$file=retrieveRecording($platform, $recording['recordingUrl']);
 
 	foreach($recording['filePaths'] as $path) {
-		$s3FileName = "s3://".$_ENV['amazonS3Bucket'].'/'.$path.'.'.$file['ext'];
+		$s3FileName = getAbsolutePath($path.'.'.$file['ext']);
 		// Write the file to S3 Bucket
 		file_put_contents($s3FileName, $file['data']);
 	}
@@ -35,7 +35,7 @@ function retrieveRecording($platform, $uri) {
 
 function saveNoRecordingCalls($logs) {
 	foreach($logs as $path => $csvRecords) {
-		$s3FileName = "s3://".$_ENV['amazonS3Bucket'].'/'.$path;
+		$s3FileName = getAbsolutePath($path);
 		$existed = file_exists($s3FileName);
 		$s3fd = fopen($s3FileName, 'a');
 		if(!$existed) {
@@ -48,4 +48,8 @@ function saveNoRecordingCalls($logs) {
 		}
 		fclose($s3fd);
 	}
+}
+
+function getAbsolutePath($path) {
+	return "s3://".$_ENV['amazonS3Bucket'].'/'.$path;
 }
