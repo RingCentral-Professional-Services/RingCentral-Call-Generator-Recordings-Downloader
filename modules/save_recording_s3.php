@@ -14,6 +14,9 @@ $awsS3Client = S3Client::factory(array(
 // Register the stream wrapper from an S3Client object
 $awsS3Client->registerStreamWrapper();
 
+if(isset($_ENV['testFolder'])) {
+	echo "!!! Attention recordings will be written test folder.\n";
+}
 
 function saveRecordingS3($recording, $platform) {
 	$file=retrieveRecording($platform, $recording['recordingUrl']);
@@ -51,5 +54,13 @@ function saveNoRecordingCalls($logs) {
 }
 
 function getAbsolutePath($path) {
+	if(isset($_ENV['testFolder'])) {
+		$file = $_ENV['testFolder'].'/'.$path;
+		$dir = dirname($file);
+		if(!file_exists($dir)) {
+			mkdir($dir, 0777, true);
+		}
+		return $file;
+	}
 	return "s3://".$_ENV['amazonS3Bucket'].'/'.$path;
 }
