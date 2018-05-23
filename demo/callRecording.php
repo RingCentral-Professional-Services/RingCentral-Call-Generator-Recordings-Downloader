@@ -21,6 +21,7 @@ echo "\n";
         // Constants
 
           $recordingID = "";
+          $callRecordId = "";
           $status = "Success";
           $dir = $_ENV['RC_dateFrom'];
           $flag = True;
@@ -74,6 +75,8 @@ echo "\n";
               if($callLogRecord["recording"]) {
 
                   $recordingID = $callLogRecord["recording"]["id"];
+
+                  $callRecordId = $callLogRecord["id"];
                               
                   print "Downloading Call Log Record : ". $recordingID . PHP_EOL;
 
@@ -92,10 +95,10 @@ echo "\n";
                   $start = microtime(true);
 
                   // Write the recording 
-                  file_put_contents("${recordingsDir}/recording_${'recordingID'}.${ext}", $apiResponse->raw());
-                  $filename = "recording_${'recordingID'}.${ext}";
+                  file_put_contents("${recordingsDir}/recording_${'recordingID'}_${'callRecordId'}.${ext}", $apiResponse->raw());
+                  $filename = "recording_${'recordingID'}_${'callRecordId'}.${ext}";
 
-                  if(filesize("${recordingsDir}/recording_${'recordingID'}.${ext}") == 0) {
+                  if(filesize("${recordingsDir}/recording_${'recordingID'}_${'callRecordId'}.${ext}") == 0) {
                     $status = "failure";
                   }
 
